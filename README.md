@@ -1,5 +1,5 @@
 # CCFJ
 A MATLAB Package for calculating seismic ambient noise cross-correlation and Frequency-Bessel Transform Method
 
-GPU acceleration is available
+> In this package, GPU acceleration is available.
 
