@@ -10,7 +10,7 @@ Quickly understand its usage by typing the following command in Matlab's command
 
 > >> mCCFJ.Help("mCCFJ")
 > Help Document - mCCFJ
->  
+> \
 > Program Version: 1.0.1
 > Configuration Requirements:
 >   1. Matlab R2022b or later
