@@ -43,3 +43,11 @@ All Rights Reserved. Help Document - End
 All Rights Reserved. 帮助文档 - 结尾
 ```
 
+This package contains the following functions, which are displayed with the command "methods(mCCFJ)"
+```
+>> methods(mCCFJ);
+Static methods:
+
+Help       correlate  distance   filtering  transform 
+```
+
