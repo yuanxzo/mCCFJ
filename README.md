@@ -3,19 +3,13 @@ A MATLAB Package for calculating seismic ambient noise cross-correlation and fre
 
 In this package, these are two main functions, mCCFJ.correlate and mCCFJ.transform. 
 
-*mCCFJ.correlate* is used to calculate the cross-correlation or
-       cross-coherency function of seismic waveforms. To ensure the
-       efficiency of calculation, the function is calculated in the
-       frequency domain, and the cross-correlation between any two
-       stations in the same time window is calculated in the way of matrix
-      parallelism. If necessary, GPU acceleration can be used. 
+*mCCFJ.correlate* is used to calculate the cross-correlation or cross-coherency function of seismic waveforms. To ensure the efficiency of calculation, the function is calculated in the frequency domain, and the cross-correlation between any two stations in the same time window is calculated in the way of matrix parallelism. If necessary, GPU acceleration can be used. 
       
 *mCCFJ.transform* is used for dispersion analysis of cross-correlation
        function. We provide a variety of frequency-wavenumber domain
        transformation methods to deal with different data, which is up to
-       you. 
-       
-       Compared with previous methods, we provide an enhanced version of frequency Bessel transform here, i.e. spatial windowed frequency Bessel transform, which can make the energy of your dispersion spectrum more concentrated and reduce spatial spurious frequency, which is beneficial to the analysis of seismic wave phase velocity and attenuation. For details, refer to the following literature, and thank you for quoting it if the program brings convenience to your research.
+       you. \
+       Compared with previous methods, we provide an enhanced version of frequency Bessel transform here, i.e. spatial windowed frequency Bessel transform, which can make the energy of the dispersion spectrum more concentrated and reduce reduce spatial artifacts, which is beneficial to the analysis of seismic wave phase velocity and attenuation. For details, refer to the following literature, and thank you for quoting it if the program brings convenience to your research.
        In order to ensure the efficiency of computing, GPU
        acceleration can be used when necessary.
 
