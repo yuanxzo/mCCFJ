@@ -8,6 +8,10 @@ A MATLAB Package for calculating seismic ambient noise cross-correlation and Fre
 
 Quickly understand its usage by typing the following command in Matlab's command line window
 
+...matlab
+mCCFJ.Help("mCCFJ")
+...
+
 > >> mCCFJ.Help("mCCFJ") \
 > Help Document - mCCFJ  \
 > \
