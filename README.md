@@ -63,4 +63,38 @@ Static methods:
 
 Help  correlate  distances  filtering  transform 
 ```
-Among them, "Help" is the help document program. You can know the details of other functions through "mCCFJ.Help('FunctionName');", such as "mCCFJ.Help('correlate');"
+Among them, "Help" is the help document program. You can know the details of other functions through "mCCFJ.Help('FunctionName')", such as "mCCFJ.Help('correlate')", so you can see the following
+```
+>> mCCFJ.Help("correlate")
+Help Document - mCCFJ.correlate: Seismic waveform cross-correlation calculation program
+ 
+Usage:
+      CC=mCCFJ.correlate(wave, rloc, Fs);
+      CC=mCCFJ.correlate(wave, rloc, Fs, options);
+Required Input Parameters: 
+      wave    At least two seismic waveform data, an array of size (npts,nsta), for example: wave=randn(npts,nsta), where npts is the number of waveform sampling points, nsta is the number of stations or waveform channels
+      rloc    The location of the station, where rloc(1,1:nsta) is the longitude in latitude and longitude coordinates or the x-coordinate in rectangular coordinates,
+                  rloc(2,1:nsta) is the latitude in latitude and longitude coordinates or the y-coordinate in rectangular coordinates
+                  rloc(3,1:nsta) is the elevation or vertical coordinate in rectangular coordinates (can be ignored)
+      Fs      Sampling rate of waveform data, unit Hz
+Optional Input Parameters (options): 
+      AX      The type of station location, 'latlon' means it is latitude and longitude coordinates, 'xyz' means it is rectangular coordinates, default 'latlon'
+      CL      The length of the sliding window for correlation calculation, requires 0<CL<=npts, default CL=npts
+      OL      The overlap length of the sliding window, 0<=OL<CL, default OL=0
+      FM      The maximum frequency of interest, requires FM<=Fs/2, default FM<=Fs/2
+      NT      Time domain normalization, 'No' means not executed, 'OneBit' means OneBit normalization, default 'No'
+      NF      Frequency domain normalization, 'No' means not executed, 'PSD' means normalized by the average power spectral density of all stations in this time window, 'ABS', complete spectral whitening, means each station divided by its own modulus, default 'No'
+      TP      The taper of Fourier transformation, ['No','Hann','tukeywin_5','tukeywin_10'], default 'tukeywin_5', i.e., 5% tukeywin window
+      RR      The inter-station distance information calculated by the 'mCCFJ.distance' function, default [] means the program will automatically call the 'mCCFJ.distance' function to calculate
+      DF      Downsample factor for the waveform spectrum, default 1 means no downsample. Downsampling can speed up the calculation, but it is necessary to pay attention to its impact on the time domain cross-correlation result
+      GPU     Whether to use GPU to speed up the calculation during the calculation process, 'No' means not using, 'Yes' means using, default 'No'
+Output Parameters (CC, is a structure): 
+      CC.acf  Frequency domain autocorrelation function of each station data
+      CC.ccf  Frequency domain cross-correlation function sorted by inter-station distance
+      CC.cct  Time domain cross-correlation function sorted by inter-station distance
+      CC.ccr  The first column is the inter-station distance, the second and third columns are the station retrieval corresponding to the inter-station distance, and the fourth column is the azimuth
+      CC.freq Frequency sequence corresponding to the frequency domain cross-correlation function
+      CC.time Time sequence corresponding to the time domain cross-correlation function
+      CC.info Some additional information reserved during the calculation process, where CC.info.cstack records the effective stacking times of each column of CC.ccf
+Help Document - End
+```
