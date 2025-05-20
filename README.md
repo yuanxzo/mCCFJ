@@ -1,5 +1,5 @@
 # mCCFJ
-<font size=20> A MATLAB Package for calculating seismic ambient noise cross-correlation and frequency-Bessel transformation. </font>
+## A MATLAB Package for calculating seismic ambient noise cross-correlation and frequency-Bessel transformation.
 
 In this package, these are two main functions, mCCFJ.correlate and mCCFJ.transform. 
 
