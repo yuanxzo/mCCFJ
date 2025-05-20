@@ -13,7 +13,10 @@ In this package, these are two main functions, mCCFJ.correlate and mCCFJ.transfo
 *mCCFJ.transform* is used for dispersion analysis of cross-correlation
        function. We provide a variety of frequency-wavenumber domain
        transformation methods to deal with different data, which is up to
-       you. In order to ensure the efficiency of computing, GPU
+       you. 
+       
+       Compared with previous methods, we provide an enhanced version of frequency Bessel transform here, i.e. spatial windowed frequency Bessel transform, which can make the energy of your dispersion spectrum more concentrated and reduce spatial spurious frequency, which is beneficial to the analysis of seismic wave phase velocity and attenuation. For details, refer to the following literature, and thank you for quoting it if the program brings convenience to your research.
+       In order to ensure the efficiency of computing, GPU
        acceleration can be used when necessary.
 
 
