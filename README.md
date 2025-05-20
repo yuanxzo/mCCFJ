@@ -50,4 +50,4 @@ Static methods:
 
 Help       correlate  distance   filtering  transform 
 ```
-Among them, "Help" is the help document program, "correlate" is the cross-correlation calculation program, "distance" is the cross-correlation distance calculation program, "transform" is the dispersion analysis program, and "filtering" is the k-filter program for cross-correlation.
+Among them, "Help" is the help document program, "correlate" is the cross-correlation calculation program, "distance" is the cross-correlation distance calculation program, "transform" is the dispersion analysis program, and "filtering" is the k-filter program for cross-correlation. Their detailed usage can be understood by typing "mCCFJ.Help('FunctionName');", such as "mCCFJ.Help('correlate');"
