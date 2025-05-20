@@ -5,13 +5,11 @@ In this package, these are two main functions, mCCFJ.correlate and mCCFJ.transfo
 
 *mCCFJ.correlate* is used to calculate the cross-correlation or cross-coherency function of seismic waveforms. To ensure the efficiency of calculation, the function is calculated in the frequency domain, and the cross-correlation between any two stations in the same time window is calculated in the way of matrix parallelism. If necessary, GPU acceleration can be used. 
       
-*mCCFJ.transform* is used for dispersion analysis of cross-correlation
-       function. We provide a variety of frequency-wavenumber domain
-       transformation methods to deal with different data, which is up to
-       you. \
-       Compared with previous methods, we provide an enhanced version of frequency Bessel transform here, i.e. spatial windowed frequency Bessel transform, which can make the energy of the dispersion spectrum more concentrated and reduce reduce spatial artifacts, which is beneficial to the analysis of seismic wave phase velocity and attenuation. For details, refer to the following literature, and thank you for quoting it if the program brings convenience to your research.
-       In order to ensure the efficiency of computing, GPU
-       acceleration can be used when necessary.
+*mCCFJ.transform* is used for dispersion analysis of cross-correlation function. We provide a variety of frequency-wavenumber domain transformation methods to deal with different data, which is up to you. Compared with previous methods, we provide an enhanced version of frequency Bessel transform here, i.e. *spatial windowed frequency Bessel transform*. This new method can make the energy of the dispersion spectrum more concentrated and reduce spatial artifacts, which is beneficial to the analysis of seismic wave phase velocity and attenuation. For details, refer to the following paper, and thank you for quoting it if the program brings convenience to your research.
+
+      Yang, B., Meng, H., Yuan, S., & Chen, X. (2025). Reliable Multimodal Attenuation Estimation of Surface Waves Using Diffuse Ambient Noise: Theory and Applications. Preprints. https://doi.org/10.22541/essoar.174120292.25931294/v1
+
+This method can be used by specifying ops.win='hamming_1' or 'hamming_2' in *mCCFJ.transform*. In order to ensure the efficiency of computing, GPU acceleration can be used when necessary.
 
 
 # Usage
