@@ -12,7 +12,7 @@ Quickly understand its usage by typing the following command in Matlab's command
 >> mCCFJ.Help("mCCFJ")  % English
 Help Document - mCCFJ
  
-Program Version: 1.0.1
+Program Version: 1.2.0
 Configuration Requirements:
   1. Matlab R2022b or later
   2. Python with obspy
@@ -21,7 +21,7 @@ Document Usage:
      methods(mCCFJ);
      mCCFJ.Help('FunctionName', 'En');
      mCCFJ.Help('FunctionName', 'Zh');
-Release Date: 2024-07-04
+Release Date: 2025-05-20
         
 All Rights Reserved. Help Document - End
 
@@ -29,7 +29,7 @@ All Rights Reserved. Help Document - End
 >> mCCFJ.Help("mCCFJ","Zh")  % Chinese
 帮助文档 - mCCFJ
  
-程序版本：1.0.1
+程序版本：1.2.0
 配置要求：
         1. Matlab R2022b或更新版本
         2. 配置有obspy的Python
@@ -38,7 +38,7 @@ All Rights Reserved. Help Document - End
           methods(mCCFJ);
           mCCFJ.Help('FunctionName', 'En');
           mCCFJ.Help('FunctionName', 'Zh');
-发布日期：2024-07-04
+发布日期：2025-05-20
         
 All Rights Reserved. 帮助文档 - 结尾
 ```
