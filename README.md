@@ -11,7 +11,7 @@ In this package, these are two main functions, mCCFJ.correlate and mCCFJ.transfo
       Reliable Multimodal Attenuation Estimation of Surface Waves Using Diffuse Ambient Noise: Theory and Applications.
       Preprints. https://doi.org/10.22541/essoar.174120292.25931294/v1
 
-This feature can be used by specifying ops.win='hamming_1' or 'hamming_2' in *mCCFJ.transform*. In order to ensure the efficiency of computing, GPU acceleration can be used when necessary.
+This feature can be used by specifying ops.win='hamming_1', 'hamming_2' or 'hamming_half' in *mCCFJ.transform*. In order to ensure the efficiency of computing, GPU acceleration can be used when necessary.
 
 
 # Usage
