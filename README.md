@@ -76,12 +76,12 @@ Optional Input Parameters (options):
       AX      The type of station location, 'latlon' means it is latitude and longitude coordinates, 'xyz' means it is rectangular coordinates, default 'latlon'
       CL      The length of the sliding window for correlation calculation, requires 0<CL<=npts, default CL=npts
       OL      The overlap length of the sliding window, 0<=OL<CL, default OL=0
-      FM      The maximum frequency of interest, requires FM<=Fs/2, default FM<=Fs/2
       NT      Time domain normalization, 'No' means not executed, 'OneBit' means OneBit normalization, default 'No'
       NF      Frequency domain normalization, 'No' means not executed, 'PSD' means normalized by the average power spectral density of all stations in this time window, 'ABS', complete spectral whitening, means each station divided by its own modulus, default 'No'
+      FM      The maximum frequency of interest, requires FM<=Fs/2, default FM<=Fs/2
+      FD      Downsample factor for the waveform spectrum, default 1 means no downsample. Downsampling can speed up the calculation, but it is necessary to pay attention to its impact on the time domain cross-correlation result
       TP      The taper of Fourier transformation, ['No','Hann','tukeywin_5','tukeywin_10'], default 'tukeywin_5', i.e., 5% tukeywin window
       RR      The inter-station distance information calculated by the 'mCCFJ.distance' function, default [] means the program will automatically call the 'mCCFJ.distance' function to calculate
-      DF      Downsample factor for the waveform spectrum, default 1 means no downsample. Downsampling can speed up the calculation, but it is necessary to pay attention to its impact on the time domain cross-correlation result
       GPU     Whether to use GPU to speed up the calculation during the calculation process, 'No' means not using, 'Yes' means using, default 'No'
 Output Parameters (CC, is a structure): 
       CC.acf  Frequency domain autocorrelation function of each station data
