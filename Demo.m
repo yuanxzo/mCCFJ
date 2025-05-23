@@ -78,7 +78,7 @@ load('Demo_data_active.mat')
 % inter-station distance. To do this, we build a CC in this format.
 CC.ccf=fft(Uz);
 CC.ccf=CC.ccf(1:1:ceil(length(Uz(:,1))/2),:); % frequency domain active source data
-CC.ccr=sqrt(sum((rloc-[0;0]).^2,1))';  % distance from source
+CC.ccr=sqrt(sum((rloc-[0;0]).^2,1))';  % distance from source, CC.ccr should be a column vector
 CC.freq=0:1/Time(end):1/Time(2)/2;     % frequency sequence
 
 % Perform wFH transform
