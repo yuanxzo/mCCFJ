@@ -6,7 +6,7 @@ load('Demo_data_ambient.mat')
 % In which, 'Uz' is the vertical displacement noise field, 'Time' is the
 % recorded time coordinate, 'rloc' is the coordinate of the receiver on the
 % xoy plane.
-
+Uz=Uz(1:500*10,:);
 % Perform cross-correlation calculations
 % A sliding window with a length of 2000 sampling points and an overlap
 % length of 1900 sampling points is used; The results of different
@@ -23,10 +23,10 @@ FJ2=mCCFJ.transform(CC2, 150:500, [1 80]);
 FJ3=mCCFJ.transform(CC3, 150:500, [1 80]);
 FJ4=mCCFJ.transform(CC4, 150:500, [1 80]);
 
-%% Plot the real part of its dispersion spectrum
+% Plot the real part of its dispersion spectrum
 figure;
 subplot(2,2,1);FJ=FJ1;
-imagesc(FJ.frq,FJ.vel,abs(FJ.dsp)./max(abs(FJ.dsp),[],1));
+imagesc(FJ.frq,FJ.vel,real(FJ.dsp)./max(abs(real(FJ.dsp)),[],1));
 set(gca,'YDir','normal');clim([0 1]);
 xlabel('Frequency (Hz)');ylabel('Phase velocity (m/s)')
 title('Raw data')
@@ -34,7 +34,7 @@ hold on
 plot(Dispersion_curve.freq, Dispersion_curve.velocity,'-');
 
 subplot(2,2,2);FJ=FJ2;
-imagesc(FJ.frq,FJ.vel,abs(FJ.dsp)./max(abs(FJ.dsp),[],1));
+imagesc(FJ.frq,FJ.vel,real(FJ.dsp)./max(abs(real(FJ.dsp)),[],1));
 set(gca,'YDir','normal');clim([0 1]);
 xlabel('Frequency (Hz)');ylabel('Phase velocity (m/s)')
 title('Onebit time-domain normalization')
@@ -42,7 +42,7 @@ hold on
 plot(Dispersion_curve.freq, Dispersion_curve.velocity,'-');
 
 subplot(2,2,3);FJ=FJ3;
-imagesc(FJ.frq,FJ.vel,abs(FJ.dsp)./max(abs(FJ.dsp),[],1));
+imagesc(FJ.frq,FJ.vel,real(FJ.dsp)./max(abs(real(FJ.dsp)),[],1));
 set(gca,'YDir','normal');clim([0 1]);
 xlabel('Frequency (Hz)');ylabel('Phase velocity (m/s)')
 title('PSD frequency-domain normalization')
@@ -50,7 +50,7 @@ hold on
 plot(Dispersion_curve.freq, Dispersion_curve.velocity,'-');
 
 subplot(2,2,4);FJ=FJ4;
-imagesc(FJ.frq,FJ.vel,abs(FJ.dsp)./max(abs(FJ.dsp),[],1));
+imagesc(FJ.frq,FJ.vel,real(FJ.dsp)./max(abs(real(FJ.dsp)),[],1));
 set(gca,'YDir','normal');clim([0 1]);
 xlabel('Frequency (Hz)');ylabel('Phase velocity (m/s)')
 title('ABS frequency-domain normalization')
