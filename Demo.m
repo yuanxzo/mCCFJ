@@ -95,7 +95,7 @@ plot(Dispersion_curve.freq, Dispersion_curve.velocity,'-');
 
 % Another way to construct CC is to deconvolute all channels to the first
 % channel to remove the influence of source time function.
-CC1.ccf=CC.ccf(:,2:end)./CC.ccf(:,1);
+CC1.ccf=CC.ccf(:,2:end)./CC.ccf(:,1); % this deconvolution operation is only illustrative
 CC1.ccr=sqrt(sum((rloc(:,2:end)-rloc(:,1)).^2,1))'; % distance from the first channel
 CC1.freq=0:1/Time(end):1/Time(2)/2;
 
