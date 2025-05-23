@@ -6,7 +6,7 @@ load('Demo_data_ambient.mat')
 % In which, 'Uz' is the vertical displacement noise field, 'Time' is the
 % recorded time coordinate, 'rloc' is the coordinate of the receiver on the
 % xoy plane.
-Uz=Uz(1:500*10,:);
+
 % Perform cross-correlation calculations
 % A sliding window with a length of 2000 sampling points and an overlap
 % length of 1900 sampling points is used; The results of different
