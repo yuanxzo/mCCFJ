@@ -23,13 +23,13 @@ FJ2=mCCFJ.transform(CC2, 150:500, [1 80]);
 FJ3=mCCFJ.transform(CC3, 150:500, [1 80]);
 FJ4=mCCFJ.transform(CC4, 150:500, [1 80]);
 
-% Plot the real part of its dispersion spectrum
+%% Plot the real part of its dispersion spectrum
 figure;
 subplot(2,2,1);FJ=FJ1;
 imagesc(FJ.frq,FJ.vel,abs(FJ.dsp)./max(abs(FJ.dsp),[],1));
 set(gca,'YDir','normal');clim([0 1]);
 xlabel('Frequency (Hz)');ylabel('Phase velocity (m/s)')
-title('No time- and no frequency-domain normalization')
+title('Raw data')
 hold on
 plot(Dispersion_curve.freq, Dispersion_curve.velocity,'-');
 
