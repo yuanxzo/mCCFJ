@@ -19,9 +19,9 @@ CC4=mCCFJ.correlate(Uz,rloc,Fs,"AX","xyz","CL",2000,"OL",1900,"NF",'ABS');
 % Perform wFH transform
 % ["Fun","H2","Win","Hamming_1"] is the default configuration of 'mCCFJ.transform'
 FJ1=mCCFJ.transform(CC1, 150:500, [1 80]);
-FJ2=mCCFJ.transform(CC1, 150:500, [1 80]);
+FJ2=mCCFJ.transform(CC2, 150:500, [1 80]);
 FJ3=mCCFJ.transform(CC3, 150:500, [1 80]);
-FJ4=mCCFJ.transform(CC1, 150:500, [1 80]);
+FJ4=mCCFJ.transform(CC4, 150:500, [1 80]);
 
 % Plot the real part of its dispersion spectrum
 figure;
