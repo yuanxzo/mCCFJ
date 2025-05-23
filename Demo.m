@@ -3,8 +3,8 @@ clear
 
 % load an example ambient noise data, including 32 channels
 load('Demo_data_ambient.mat')
-% In which, 'Uz' is the vertical displacement noise field, 'Time' is the
-% recorded time coordinate, 'rloc' is the coordinate of the receiver on the
+% In which, 'Uz' is the vertical noise field, 'Time' is the recorded
+% time coordinate, 'rloc' is the coordinate of the receiver on the
 % xoy plane.
 
 % Perform cross-correlation calculations
