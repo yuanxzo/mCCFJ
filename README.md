@@ -7,6 +7,8 @@ In this package, these are two main functions, mCCFJ.correlate and mCCFJ.transfo
       
 *mCCFJ.transform* is used for dispersion analysis of cross-correlation function. We provide a variety of frequency-wavenumber domain transformation methods to deal with different data, which is up to you. Compared with previous methods, we provide an enhanced version of frequency-Bessel transform here, i.e. *spatial windowed frequency-Bessel transform*. This new method can make the energy of the dispersion spectrum more concentrated and reduce spatial artifacts, which is beneficial to the analysis of seismic wave phase velocity and attenuation. For details, refer to the following paper, and thank you for quoting it if the *mCCFJ* program brings convenience to your research.
 
+      Reference:
+
       Yang, B., Meng, H., Yuan, S., & Chen, X. (2025). 
       Reliable Multimodal Attenuation Estimation of Surface Waves Using Diffuse Ambient Noise: Theory and Applications.
       Preprints. https://doi.org/10.22541/essoar.174120292.25931294/v1
