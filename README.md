@@ -17,15 +17,6 @@ This feature can be used by specifying ops.win='hamming_1', 'hamming_2' or 'hamm
 
 
 # Highlights
-- 程序集成度高：所有功能集中在了一个.p文件中，文档管理极为方便
-- 可快速入手并熟练掌握：程序接口简单且具有详细的中英文帮助文件和演示代码
-- 更强大的频散分析功能：该程序包独有的wFH变换
-
-# To Do Lists
-- 针对DAS数据的wFH变换
-- 基于相位加权的互相关叠加方式选项
-
-# Highlights
 - High program integration: All functions are consolidated into a single .p file, making document management extremely convenient.  
 - Quick to learn and master: The program features a simple interface with detailed bilingual (Chinese and English) help documentation and demonstration code.  
 - More powerful dispersion analysis capabilities: Includes the unique wFH transformation specific to this program package.  
