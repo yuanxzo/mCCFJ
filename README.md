@@ -22,6 +22,7 @@ This feature can be used by specifying ops.win='hamming_1', 'hamming_2' or 'hamm
 - More powerful dispersion analysis capabilities: Includes the unique wFH transformation specific to this program package.  
 
 # To Do Lists
+- Integrated wFH inverse transformation program.
 - Implement wFH transformation specific to DAS data. 
 - Add an option for phase-weighted cross-correlation stacking method.
 
