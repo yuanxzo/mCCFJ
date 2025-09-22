@@ -5,17 +5,18 @@ In this package, these are three main functions, mCCFJ.correlate, mCCFJ.transfor
 
 *mCCFJ.correlate* is used to calculate the cross-correlation or cross-coherency function of seismic waveforms. To ensure the efficiency of calculation, the function is calculated in the frequency domain, and the cross-correlation between any two stations in the same time window is calculated in the way of matrix parallelism. If necessary, GPU acceleration can be used. 
       
-*mCCFJ.transform* is used for dispersion analysis of cross-correlation function. We provide a variety of frequency-wavenumber domain transformation methods to deal with different data, which is up to you. Compared with previous methods, we provide an enhanced version of frequency-Bessel transform here, i.e. *spatial windowed frequency-Bessel transform*. This new method can make the energy of the dispersion spectrum more concentrated and reduce spatial artifacts, which is beneficial to the analysis of seismic wave phase velocity and attenuation. For details, refer to the following paper, and thank you for quoting it if the *mCCFJ* program brings convenience to your research.
+*mCCFJ.transform* is used for dispersion analysis of cross-correlation function. We provide a variety of frequency-wavenumber domain transformation methods to deal with different data, which is up to you. Compared with previous methods, we provide an enhanced version of frequency-Bessel transform here, i.e. *spatial windowed frequency-Bessel transform*. This new method can make the energy of the dispersion spectrum more concentrated and reduce spatial artifacts, which is beneficial to the analysis of seismic wave phase velocity and attenuation. This feature can be used by specifying ops.win='hamming_1', 'hamming_2' or 'hamming_half' in *mCCFJ.transform*. In order to ensure the efficiency of computing, GPU acceleration can be used when necessary.
 
 *mCCFJ.inversion* is the inverse transformation program of *mCCFJ.transform*, which allows for the inverse transformation of some of the dispersion energy in the frequency-velocity domain back to obtain the cross-correlation signal in the frequency-space domain. This ability helps with denoising, mode separation, etc.
 
+For more details, refer to the following paper, and thank you for quoting it if the *mCCFJ* program brings convenience to your research.
       Reference:
 
       Yang, B., Meng, H., Yuan, S., & Chen, X. (2025). 
       Reliable Multimodal Attenuation Estimation of Surface Waves Using Diffuse Ambient Noise: Theory and Applications.
       Journal of Geophysical Research: Solid Earth, 130, e2025JB031418. https://doi.org/10.1029/2025JB031418
 
-This feature can be used by specifying ops.win='hamming_1', 'hamming_2' or 'hamming_half' in *mCCFJ.transform*. In order to ensure the efficiency of computing, GPU acceleration can be used when necessary.
+
 
 
 # Highlights
