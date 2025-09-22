@@ -1,11 +1,13 @@
 # mCCFJ
 ### A MATLAB Package for calculating seismic ambient noise cross-correlation and frequency-Bessel transformation.
 
-In this package, these are two main functions, mCCFJ.correlate and mCCFJ.transform. 
+In this package, these are three main functions, mCCFJ.correlate, mCCFJ.transform and mCCFJ.inversion. 
 
 *mCCFJ.correlate* is used to calculate the cross-correlation or cross-coherency function of seismic waveforms. To ensure the efficiency of calculation, the function is calculated in the frequency domain, and the cross-correlation between any two stations in the same time window is calculated in the way of matrix parallelism. If necessary, GPU acceleration can be used. 
       
 *mCCFJ.transform* is used for dispersion analysis of cross-correlation function. We provide a variety of frequency-wavenumber domain transformation methods to deal with different data, which is up to you. Compared with previous methods, we provide an enhanced version of frequency-Bessel transform here, i.e. *spatial windowed frequency-Bessel transform*. This new method can make the energy of the dispersion spectrum more concentrated and reduce spatial artifacts, which is beneficial to the analysis of seismic wave phase velocity and attenuation. For details, refer to the following paper, and thank you for quoting it if the *mCCFJ* program brings convenience to your research.
+
+*mCCFJ.inversion* is the inverse transformation program of *mCCFJ.transform*, which allows for the inverse transformation of some of the dispersion energy in the frequency-velocity domain back to obtain the cross-correlation signal in the frequency-space domain. This ability helps with denoising, mode separation, etc.
 
       Reference:
 
@@ -19,10 +21,9 @@ This feature can be used by specifying ops.win='hamming_1', 'hamming_2' or 'hamm
 # Highlights
 - High program integration: All functions are consolidated into a single .p file, making document management extremely convenient.  
 - Quick to learn and master: The program features a simple interface with detailed bilingual (Chinese and English) help documentation and demonstration code.  
-- More powerful dispersion analysis capabilities: Includes the unique wFH transformation specific to this program package.  
+- More powerful dispersion analysis capabilities: Includes the unique wFH transform pair specific to this program package.  
 
 # To Do Lists
-- Integrated wFH inverse transformation program.
 - Implement wFH transformation specific to DAS data. 
 - Add an option for phase-weighted cross-correlation stacking method.
 
@@ -69,7 +70,7 @@ This package contains the following functions, which are displayed with the comm
 >> methods(mCCFJ);
 Static methods:
 
-Help  correlate  distances  filtering  transform 
+Help  correlate  distances  filtering  transform inversion
 ```
 Among them, "Help" is the help document program. You can know the details of other functions through "mCCFJ.Help('FunctionName')", such as "mCCFJ.Help('correlate')", so you can see the following
 ```
