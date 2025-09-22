@@ -37,14 +37,14 @@ Quickly understand its usage by typing the following command in Matlab's command
 >> mCCFJ.Help("mCCFJ")  % English
 Help Document - mCCFJ
  
-Program Version: 1.2.0
+Program Version: 1.5.0
 Configuration Requirements: Matlab R2022b or later versions are recommended
 Document Usage:
      methods(mCCFJ);
      mCCFJ.Help('FunctionName', 'En');
      mCCFJ.Help('FunctionName', 'Zh');
         
-Release Date: 2025-05-20
+Release Date: 2025-09-22
 All Rights Reserved
         
 Help Document - End
