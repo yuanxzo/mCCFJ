@@ -71,7 +71,7 @@ This package contains the following functions, which are displayed with the comm
 >> methods(mCCFJ);
 Static methods:
 
-Help  correlate  distances  filtering  transform inversion
+Help       correlate  distances  filtering  inversion  transform  
 ```
 Among them, "Help" is the help document program. You can know the details of other functions through "mCCFJ.Help('FunctionName')", such as "mCCFJ.Help('correlate')", so you can see the following
 ```
