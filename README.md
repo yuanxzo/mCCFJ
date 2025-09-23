@@ -44,7 +44,7 @@ Document Usage:
      mCCFJ.Help('FunctionName', 'En');
      mCCFJ.Help('FunctionName', 'Zh');
         
-Release Date: 2025-09-22
+Release Date: 2025-09-23
 All Rights Reserved
         
 Help Document - End
@@ -53,14 +53,14 @@ Help Document - End
 >> mCCFJ.Help("mCCFJ","Zh")  % Chinese
 帮助文档 - mCCFJ
  
-程序版本：1.2.0
+程序版本：1.5.0
 配置要求：建议使用Matlab R2022b或更新版本
 文档用法:
           methods(mCCFJ);
           mCCFJ.Help('FunctionName', 'En');
           mCCFJ.Help('FunctionName', 'Zh');
         
-发布日期：2025-05-20
+发布日期：2025-09-23
 All Rights Reserved.
         
 帮助文档 - 结尾
