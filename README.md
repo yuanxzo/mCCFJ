@@ -27,6 +27,7 @@ For more details, refer to the following paper, and thank you for quoting it if 
 # To Do Lists
 - Implement wFH transformation specific to DAS data. 
 - Add an option for phase-weighted cross-correlation stacking method.
+- Add a program that can stack cross-correlation by distance bin
 
 
 # Usage
