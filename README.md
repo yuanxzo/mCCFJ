@@ -25,8 +25,8 @@ For more details, refer to the following paper, and thank you for quoting it if 
 - More powerful dispersion analysis capabilities: Includes the unique wFH transform pair specific to this program package.  
 
 # To Do Lists
-- ~~ Integrated wFH inverse transformation program. ~~ (Done)
-- ~~ Implement wFH transformation specific to DAS data. ~~ (Done)
+- Integrated wFH inverse transformation program. (Done)
+- Implement wFH transformation specific to DAS data. (Done)
 - Add an option for phase-weighted cross-correlation stacking method.
 - Add a program that can stack cross-correlation by distance bin
 
