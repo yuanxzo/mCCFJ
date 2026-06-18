@@ -29,7 +29,7 @@ For more details, refer to the following paper, and thank you for quoting it if 
 - [x] Implement wFH transformation specific to DAS data.
 - [x] Add a program that can stack cross-correlation by distance bin.
 - [ ] Add an option for phase-weighted cross-correlation stacking method.
-
+- [ ] Cross-correlation or cross-coherency for 3-component data.
 
 # Usage
 
