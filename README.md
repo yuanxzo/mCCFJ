@@ -39,14 +39,14 @@ Quickly understand its usage by typing the following command in Matlab's command
 >> mCCFJ.Help("mCCFJ")  % English
 Help Document - mCCFJ
  
-Program Version: 1.5.0
+Program Version: 1.6.0
 Configuration Requirements: Matlab R2022b or later versions are recommended
 Document Usage:
      methods(mCCFJ);
      mCCFJ.Help('FunctionName', 'En');
      mCCFJ.Help('FunctionName', 'Zh');
         
-Release Date: 2025-09-23
+Release Date: 2026-07-15
 All Rights Reserved
         
 Help Document - End
@@ -55,14 +55,14 @@ Help Document - End
 >> mCCFJ.Help("mCCFJ","Zh")  % Chinese
 帮助文档 - mCCFJ
  
-程序版本：1.5.0
+程序版本：1.6.0
 配置要求：建议使用Matlab R2022b或更新版本
 文档用法:
           methods(mCCFJ);
           mCCFJ.Help('FunctionName', 'En');
           mCCFJ.Help('FunctionName', 'Zh');
         
-发布日期：2025-09-23
+发布日期：2026-07-15
 All Rights Reserved.
         
 帮助文档 - 结尾
@@ -104,7 +104,7 @@ Optional Input Parameters (options):
 Output Parameters (CC, is a structure): 
       CC.acf  Frequency domain autocorrelation function of each station data
       CC.ccf  Frequency domain cross-correlation function sorted by inter-station distance
-      CC.cct  Time domain cross-correlation function sorted by inter-station distance
+      CC.cct  Time-domain results of CC.ccf
       CC.ccr  The 1st column is the inter-station distance, the 2nd and 3rd columns are the station retrieval, and the 4th column is the azimuth, the 5th and 6th columns are the station names
       CC.freq Frequency sequence corresponding to the frequency domain cross-correlation function
       CC.time Time sequence corresponding to the time domain cross-correlation function
