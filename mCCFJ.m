@@ -700,8 +700,8 @@ methods (Static)
 end
 
 end
-%% 私有子程序
 
+%% 私有子程序
 function Ut=myifft_cc(Uf,NL)
     % colum        
     Uf=gather(Uf);
