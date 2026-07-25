@@ -237,8 +237,10 @@ methods (Static)
                     cc_norm = 1;
                 case "PSD"  % PSD归一化
                     cc_norm = mean(temp(:,inx1),2); % 当前时窗的PSD
+                    cc_norm = cc_norm + mean(abs(cc_norm),"all").*1e-6;
                 case "ABS"  % 绝对值归一化，完全的谱白化
                     cc_norm = sqrt(temp(:,st1)).*sqrt(temp(:,st2));
+                    cc_norm = cc_norm + mean(abs(cc_norm),"all").*1e-6;
             end
             cc_temp = cc_temp./cc_norm;
             
