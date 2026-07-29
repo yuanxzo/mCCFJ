@@ -1,7 +1,7 @@
 classdef mCCFJ
 % A MATLAB Package for calculating seismic ambient noise cross-correlation and frequency-Bessel transformation.
 %   
-% In this package, these are three main functions: mCCFJ.correlate, mCCFJ.transform and mCCFJ.inversion.
+% In this package, these are four main functions: mCCFJ.correlate, mCCFJ.transform, mCCFJ.inversion and mCCFJ.attenuation.
 % mCCFJ.correlate is used to calculate the cross-correlation or
 %       cross-coherency function of seismic waveforms. To ensure the
 %       efficiency of calculation, the function is calculated in the
@@ -25,6 +25,9 @@ classdef mCCFJ
 %       dispersion energy in the frequency-velocity domain back to obtain
 %       the cross-correlation signal in the frequency-space domain. This
 %       ability helps with denoising, mode separation, etc.
+% mCCFJ.attenuation extracts surface‑wave attenuation by analyzing the
+%       amplitudes of the cross-coherency outputs from mCCFJ.inversion
+%       using an improved coherence‑fitting method.
 % 
 % For more details, refer to the following paper, and thank you for quoting
 % it if the mCCFJ program brings convenience to your research. Reference:
@@ -353,14 +356,18 @@ methods (Static)
     function FJ=transform(CC, c_range, f_bound, ops)
         arguments
             CC (1,1) struct
-            c_range {mustBeNumeric,mustBeNonzero}
-            f_bound {mustBeNumeric,mustBeNonnegative}
+            c_range (1,:) {mustBeNumeric,mustBeNonzero}
+            f_bound (1,2) {mustBeNumeric,mustBeNonnegative}
             ops.Fun {mustBeMember(ops.Fun,["J0","J1","H1","H2","H2_r","FK"])}="H2"
             ops.Win {mustBeMember(ops.Win,["No","Hamming_1","Hamming_2","Hamming_half","Gauss"])}="Hamming_1"
             ops.GPU {mustBeMember(ops.GPU,["No","Yes"])}="No"
             ops.Num (1,1){mustBeNumeric,mustBeNonnegative}=0;      
         end
         FJ=struct;
+        
+        if strcmp(ops.GPU,"Yes") && ops.Num>0
+            warning('CPU + GPU parallel execution may slow down the program. It is recommended to enable only one mode.')
+        end
 
         % CC 是 correlate 函数计算得出的, 如果不是，按下面形式合成CC也可
         frq = CC.freq;       % 频率域互相关依赖的频率序列
@@ -394,8 +401,8 @@ methods (Static)
 
         % 如果GPU可用则将数据转移到GPU
         dispersion = zeros(length(c_range),length(ccf(:,1)));
-        c_range=c_range(:)';
         frq=frq(:);
+        c_range=c_range(:)';   
         if canUseGPU() && strcmp(ops.GPU,"Yes")
             cb=whos("ccf",'dispersion');
             gm=gpuDevice().AvailableMemory;
@@ -423,10 +430,8 @@ methods (Static)
             Gfs=hilbert(real(ccf));
             parfor (i=1:length(frq),ops.Num)
                 k=2*pi*frq(i)./c_range;
-                bjy=(besselj(0,k.*ccr)+1i*bessely(0,k.*ccr));
-                if isinf(bjy(1,1)) || isnan(bjy(1,1))
-                    bjy(1,:)=0;
-                end
+                bjy=(besselj(0,k.*ccr)+1i*bessely(0,k.*ccr));                
+                bjy(isnan(bjy))=0;bjy(isinf(bjy))=0;
                 dispersion(:,i)=trapz(ccr,ccr.*Gfs(i,:).'.*bjy,1);  % ! besselh(0,2,k.*r)
             end
         elseif strcmp(ops.Fun,'H2')
@@ -434,9 +439,7 @@ methods (Static)
             parfor (i=1:length(frq),ops.Num)
                 k=2*pi*frq(i)./c_range;
                 bjy=(besselj(0,k.*ccr)-1i*bessely(0,k.*ccr));
-                if isinf(bjy(1,1)) || isnan(bjy(1,1))
-                    bjy(1,:)=0;
-                end
+                bjy(isnan(bjy))=0;bjy(isinf(bjy))=0;
                 dispersion(:,i)=trapz(ccr,ccr.*Gfs(i,:).'.*bjy,1);  % ! besselh(0,2,k.*r)
             end
         elseif strcmp(ops.Fun,'H2_r')
@@ -444,9 +447,7 @@ methods (Static)
             parfor (i=1:length(frq),ops.Num)
                 k=2*pi*frq(i)./c_range;
                 bjy=(besselj(1,k.*ccr)-1i*bessely(1,k.*ccr));
-                if isinf(bjy(1,1)) || isnan(bjy(1,1))
-                    bjy(1,:)=0;
-                end
+                bjy(isnan(bjy))=0;bjy(isinf(bjy))=0;
                 dispersion(:,i)=trapz(ccr,ccr.*Gfs(i,:).'.*bjy,1);  % ! besselh(1,2,k.*r)
             end
         elseif strcmp(ops.Fun,'FK')
@@ -456,7 +457,7 @@ methods (Static)
             end
         end
 
-        FJ.dsp=gather(dispersion.*sign(sum(abs(ccf),2))');  % 频散谱
+        FJ.dsp   =gather(dispersion.*sign(sum(abs(ccf),2))');  % f-c域的频散谱
         FJ.frq=gather(frq);         % 频率
         FJ.vel=gather(c_range);     % 相速度
         FJ.Fun=ops.Fun;
@@ -545,22 +546,28 @@ methods (Static)
     end
 
     
-    function CC=inversion(FJ, RR, Mask, ops)
+    function CC=inversion(FJ, CR, Mask, ops)
         arguments
             FJ (1,1) struct
-            RR {mustBeNumeric,mustBeNonnegative}
+            CR (:,1) {mustBeNumeric,mustBeNonnegative}
             
             Mask {mustBeNumeric}=[]
+            ops.Threshold {mustBeNumeric,mustBeNonnegative}=0.01
             ops.Plt {mustBeMember(ops.Plt,["real","imag","abs"])}="abs"
             ops.GPU {mustBeMember(ops.GPU,["No","Yes"])}="No"  
             ops.Num (1,1){mustBeNumeric,mustBeNonnegative}=0;
+            ops.ShowMask {mustBeMember(ops.ShowMask,["No","Yes"])}="No"  
         end
         CC=struct;
 
-        % FJ 是 FJ_transform 函数计算得出的, 如果不是按下面形式合成FJ也可
+        if strcmp(ops.GPU,"Yes") && ops.Num>0
+            warning('CPU + GPU parallel execution may slow down the program. It is recommended to enable only one mode.')
+        end
+
+        % FJ 是 mCCFJ.transform 函数计算得出的
         frq = FJ.frq(:);   % 频率
         vel = FJ.vel(:)';  % 相速度
-        dsp = FJ.dsp;      % 频散谱, 大小为[length(frq),length(ccr)]
+        dsp = FJ.dsp;      % f-c域的频散谱, 大小为[length(frq),length(ccr)]
         fun = FJ.Fun;      % 正变换所用的基函数
         win = FJ.Win;      % 正变换所用的窗函数
         rrg = FJ.Rrg;      % 正变换的最小、最大互相关距离
@@ -570,24 +577,24 @@ methods (Static)
         nf=length(0:df:frq(1))-1;
 
         % taper
-        if RR(1)<rrg(1) || RR(end)>rrg(2)
+        if CR(1)<rrg(1) || CR(end)>rrg(2)
             warning('Exceeding the original integration space, the result may be inaccurate!')
         end
         switch win
             case "Hamming_1"
-                taper = 0.54-0.46*cos(2*pi*RR./rrg(2));
+                taper = 0.54-0.46*cos(2*pi*CR./rrg(2));
             case "Hamming_2"
-                taper = 0.54-0.46*cos(2*pi*(RR-rrg(1))./(rrg(2)-rrg(1)));
+                taper = 0.54-0.46*cos(2*pi*(CR-rrg(1))./(rrg(2)-rrg(1)));
             case "Hamming_half"
-                taper = 0.54-0.46*cos(2*pi*RR./max(RR));[~,tin]=max(taper);taper(1:1:tin)=1;
+                taper = 0.54-0.46*cos(2*pi*CR./max(CR));[~,tin]=max(taper);taper(1:1:tin)=1;
             case "Gauss"
-                taper = exp(-1/2*((RR-rrg(2)/2)/((rrg(2)-1)/(2*2.5))).^2);
+                taper = exp(-1/2*((CR-rrg(2)/2)/((rrg(2)-1)/(2*2.5))).^2);
             otherwise
                 taper = 1;
         end
-        RR=RR(:);
+        CR=CR(:);
 
-        % 确定掩码
+        % 框选感兴趣的面波频散能量团
         if isempty(Mask)
             H=figure;
             if strcmp(ops.Plt,"real")
@@ -615,19 +622,98 @@ methods (Static)
         end
 
 
+        % 根据框选的面波频散能量团提取频散曲线以及计算阵列响应函数
+        if ~isempty(Mask)
+            selected = (dsp .* Mask); % 注意被动源数据输入前取real，主动源取复数。嗯~也可都复数，依照问题来看
+            Vr=zeros(length(frq),1);Va=zeros(length(frq),1);
+            for i=1:length(frq)
+                if sum(abs(selected(:,i)))==0
+                    continue
+                end
+                % 把圈内的频散曲线给提取出来
+                if strcmp(ops.Plt,"real")
+                    [~,in]=max(abs(real(selected(:,i))));
+                elseif strcmp(ops.Plt,"imag")
+                    [~,in]=max(abs(imag(selected(:,i))));
+                else
+                    [~,in]=max(abs(selected(:,i)));
+                end
+                Vr(i)=FJ.vel(in);
+                Va(i)=FJ.dsp(in,i);
+            end
+
+            % 根据频散曲线及阵列空间分布确定阵列响应函数
+            ASF=zeros(length(vel),length(frq));
+            parfor (i=1:length(Vr),ops.Num)
+                if Vr(i)==0
+                    continue;
+                end
+                w=2*pi*frq(i);
+                k=w./vel;
+                kv=w./Vr(i);
+
+                ASF(:,i)=trapz(CR,taper.*CR.*besselj(0,kv.*CR).*besselj(0,k.*CR),1);
+            end
+
+            % 根据输入的阈值，选择ASF的有效范围
+            AF1=zeros(size(ASF));
+            for i=1:length(AF1(1,:))
+                % 找最大值和与最大值最近的最小值的位置
+                [~,in1]=max(ASF(:,i).*Mask(:,i));
+                [~,in2]=findpeaks(-ASF(:,i));
+                [~,in3]=min(abs(in1-in2));
+                in4=in2(in3);
+                din=abs(in1-in4);
+                if isempty(in2)
+                    AF1(:,i)=0;
+                    continue
+                end
+                indx=(in1-3*din):1:(in1+3*din);
+                indx(indx<1)=[];
+                indx(indx>length(vel))=[];
+
+                % 在区间内开始选择
+                temp=smoothdata(abs(ASF(:,i)),"gaussian");
+                AF1(indx,i)=temp(indx);
+                Threshold=max(AF1(indx,i))*ops.Threshold;
+                AF1(AF1(:,i)< Threshold,i)=0;
+                AF1(AF1(:,i)>=Threshold,i)=1;
+            end
+            ASF_Mask=sign(AF1.*Mask.*abs(Vr'));
+        else
+            error("Wrong 'Mask'!")
+        end
+
+        % 绘图
+        if strcmp(ops.ShowMask,"Yes")
+            figure;
+            if strcmp(ops.Plt,"real")
+                imagesc(frq,vel,abs(real(dsp)./max(abs(real(dsp)),[],1)).*ASF_Mask);
+            elseif strcmp(ops.Plt,"imag")
+                imagesc(frq,vel,abs(imag(dsp)./max(abs(imag(dsp)),[],1)).*ASF_Mask);
+            else
+                imagesc(frq,vel,abs(dsp)./max(abs(dsp),[],1).*ASF_Mask);
+            end
+            hold on
+            plot(frq,Vr,'w*');
+            clim([0 1]);
+            xlabel('Freq. (Hz)');ylabel('Phase velocity (m/s)');
+            set(gca,'YDir','normal');colormap("turbo");colorbar;
+            drawnow;
+        end
+
         % 执行反变换
         if ~isempty(find(Mask==1, 1))
-            selected = (dsp .* Mask); % 注意被动源数据输入前取real，主动源取复数。嗯~也可都复数，依照问题来看
+            selected = (dsp .* ASF_Mask); % 注意被动源数据输入前取real，主动源取复数。嗯~也可都复数，依照问题来看
 
             if canUseGPU() && strcmp(ops.GPU,"Yes")
                 frq=gpuArray(frq);
                 vel=gpuArray(vel);
-                RR=gpuArray(RR);
+                CR=gpuArray(CR);
                 selected=gpuArray(selected);
             end
 
-            INV=zeros(length(frq),length(RR));
-            Vr=zeros(length(frq),1);
+            INV=zeros(length(frq),length(CR));
             parfor (i=1:length(frq),ops.Num)
                 if sum(abs(selected(:,i)))==0
                     continue
@@ -637,56 +723,132 @@ methods (Static)
                     continue
                 end
 
-                % 把圈内的频散曲线也给提取出来
-                if strcmp(ops.Plt,"real")
-                    [~,in]=max(abs(real(selected(:,i))));
-                elseif strcmp(ops.Plt,"imag")
-                    [~,in]=max(abs(imag(selected(:,i))));
-                else
-                    [~,in]=max(abs(selected(:,i)));
-                end
-                Vr(i)=FJ.vel(in);
-
                 % 反变换积分
                 if strcmp(fun,'J0')
-                    INV(i,:)=trapz(k,k.*selected(:,i).'.*besselj(0,k.*RR),2);
+                    INV(i,:)=trapz(k,k.*selected(:,i).'.*besselj(0,k.*CR),2);
                 elseif strcmp(fun,'J1')
-                    INV(i,:)=trapz(k,k.*selected(:,i).'.*besselj(1,k.*RR),2);
+                    INV(i,:)=trapz(k,k.*selected(:,i).'.*besselj(1,k.*CR),2);
                 elseif strcmp(fun,'H1')
-                    bjy=(besselj(0,k.*RR)-1i*bessely(0,k.*RR));
-                    if isinf(bjy(1,1)) || isnan(bjy(1,1))
-                        bjy(1,:)=0;
-                    end
+                    bjy=(besselj(0,k.*CR)-1i*bessely(0,k.*CR));
+                    bjy(isnan(bjy))=0;bjy(isinf(bjy))=0;
                     INV(i,:)=0.5.*real(trapz(k,k.*selected(:,i).'.*bjy,2));
                 elseif strcmp(fun,'H2')
-                    bjy=(besselj(0,k.*RR)+1i*bessely(0,k.*RR));
-                    if isinf(bjy(1,1)) || isnan(bjy(1,1))
-                        bjy(1,:)=0;
-                    end
+                    bjy=(besselj(0,k.*CR)+1i*bessely(0,k.*CR));
+                    bjy(isnan(bjy))=0;bjy(isinf(bjy))=0;
                     INV(i,:)=0.5.*real(trapz(k,k.*selected(:,i).'.*bjy,2));
                 elseif strcmp(fun,'H2_r')
-                    bjy=(besselj(1,k.*RR)+1i*bessely(1,k.*RR));
-                    if isinf(bjy(1,1)) || isnan(bjy(1,1))
-                        bjy(1,:)=0;
-                    end
+                    bjy=(besselj(1,k.*CR)+1i*bessely(1,k.*CR));
+                    bjy(isnan(bjy))=0;bjy(isinf(bjy))=0;
                     INV(i,:)=0.5.*real(trapz(k,k.*selected(:,i).'.*bjy,2));
                 elseif strcmp(fun,'FK')
-                    INV(i,:)=trapz(k,k.*selected(:,i).'.*exp(-1i*k.*RR),2);
+                    INV(i,:)=trapz(k,k.*selected(:,i).'.*exp(-1i*k.*CR),2);
                 end
             end
-            INV=[zeros(nf,length(RR));INV];
-            Vr=[zeros(nf,1);Vr];
+            INV=[zeros(nf,length(CR));INV];
 
             % 输出
             CC.ccf=gather(-INV./taper');
             CC.cct=fftshift( myifft_cc(CC.ccf,1+length(CC.ccf(:,1))), 1);
-            CC.ccr=gather(RR);
+            CC.ccr=gather(CR);
             CC.freq=gather(0:df:max(frq))';
             CC.time=((1:length(CC.cct(:,1)))-(floor(length(CC.cct(:,1))/2) + 1))./CC.freq(end)/2;
-
             CC.Mask=Mask;
             CC.Mpos=Mpos;
-            CC.Vr=Vr;
+            CC.ASF_Mask=ASF_Mask;
+            CC.Vr=[zeros(nf,1);Vr];
+        end
+    end
+
+    function [A,W,freq]=attenuation(CC, f_bound, r_bound, a_range, w_range, ops)
+        arguments
+            CC (1,1) struct
+            f_bound (1,2)
+            r_bound (1,2)
+            a_range (1,:)
+            w_range (1,:)
+            ops.kind {mustBeMember(ops.kind,["J0","J1"])}="J0"
+            ops.envelope {mustBeMember(ops.envelope,["No","Yes"])}="No"
+            ops.ShowResults {mustBeMember(ops.ShowResults,["No","Yes"])}="No";
+        end
+        
+        fid=CC.freq>=f_bound(1) & CC.freq<=f_bound(2);
+        if iscell(CC.ccr)
+            CC.ccr=cell2mat(CC.ccr(:,1));
+        end
+        rid=CC.ccr(:,1)>=r_bound(1) & CC.ccr(:,1)<=r_bound(2);
+    
+        F=CC.freq(fid);
+        V=CC.Vr(fid);
+        R=CC.ccr(rid,1);
+        Y=real(CC.ccf(fid,rid));
+        freq=F;
+    
+        if strcmp(ops.kind,"J1")
+            v=1;
+        else
+            v=0;
+        end
+    
+        A=zeros(length(F),1);W=zeros(length(F),1);
+        if strcmp(ops.envelope,"No")
+            parfor i=1:length(F)
+                k=2*pi*F(i)/V(i);
+                if isnan(k) || isinf(k); continue; end
+    
+                y_cal = (besselj(v,k.*R).*exp(-a_range.*R));
+        
+                err=zeros(length(w_range),length(a_range));
+                for j=1:length(w_range)    
+                    err(j,:)=sqrt(sum(abs( Y(i,:)' - w_range(j).*y_cal ).^2,1));
+                end
+                [~,inx,iny]=min2(err);
+                A(i)=a_range(inx);
+                W(i)=w_range(iny);
+            end
+        else
+            Y1=envelope(Y')';
+            parfor i=1:length(F)
+                k=2*pi*F(i)/V(i);
+                if isnan(k) || isinf(k); continue; end
+    
+                y_cal = envelope(besselj(v,k.*R).*exp(-a_range.*R));
+        
+                err=zeros(length(w_range),length(a_range));
+                for j=1:length(w_range)    
+                    err(j,:)=sqrt(sum(abs( Y1(i,:)' - w_range(j).*y_cal ).^2,1));
+                end
+                [~,inx,iny]=min2(err);
+                A(i)=a_range(inx);
+                W(i)=w_range(iny);
+            end
+        end
+    
+    
+        % 交互式绘图以检查拟合效果
+        if strcmp(ops.ShowResults,'Yes')
+            fig = uifigure('Name', 'Interactive Plot – Check Cross‑Coherency Fitting Quality', 'Position', [500 300 600 600]);
+            uibutton(fig, 'Text', 'Save','Position', [20 570 50 20],'ButtonPushedFcn', @(btn, event) saveFig(fig));
+    
+            ax1 = uiaxes(fig, 'Position',[50 430 500 120]);
+            ax1.XLabel.String = 'Freq. (Hz)';
+            ax1.YLabel.String = 'c (m/s)';
+            ax1.FontSize=14;
+    
+            ax2 = uiaxes(fig, 'Position',[50 280 500 130]);
+            ax2.XLabel.String = 'Freq. (Hz)';
+            ax2.YLabel.String = '\alpha (1/m)';
+            ax2.FontSize=14;
+    
+            ax3 = uiaxes(fig, 'Position', [50 60 500 200]);
+            ax3.XLabel.String = 'Distance (m)';
+            ax3.YLabel.String = 'Coherency';
+            ax3.XLim = [R(1), R(end)];
+            ax3.FontSize=14;
+            slider = uislider(fig, ...
+                'Position', [100, 40, 400, 3], ...
+                'Limits', [freq(1), freq(end)], ...
+                'Value', freq(1));
+            slider.ValueChangedFcn = @(src, event) updatePlot(src, ax1,ax2,ax3, A,W,freq,R,V,Y);
         end
     end
 
@@ -694,7 +856,7 @@ methods (Static)
     % 帮助文档
     function Help(WhichFunctionName,Language)
         arguments
-            WhichFunctionName {mustBeMember(WhichFunctionName,["mCCFJ","correlate","filtering","transform","inversion","distances","stack_bin"])}="mCCFJ"
+            WhichFunctionName {mustBeMember(WhichFunctionName,["mCCFJ","correlate","filtering","transform","inversion","distances","stack_bin","attenuation"])}="mCCFJ"
             Language {mustBeMember(Language,["En","Zh"])}="En"
         end
         HelpFunction(WhichFunctionName,Language)
@@ -719,6 +881,59 @@ function Ut=myifft_cc(Uf,NL)
 
     Ut=ifft(Uf.*nf^2,[],1,'symmetric');%
 end
+
+% 更新绘图函数
+function updatePlot(src, ax1,ax2,ax3, A,W,freq,R,V,Y)
+    f = src.Value;   % 获取当前滑动条值（频率）
+    [~,fid]=min(abs(f-freq));
+    f=freq(fid);
+    src.Value=f;
+    
+    p1=plot(ax1,freq,V,'k-','LineWidth',1.5);hold(ax1,"on")
+    plot(ax1,f,V(fid),'r.','MarkerSize',10);
+    plot(ax1,f,V(fid),'ro','MarkerSize',10);hold(ax1,"off")
+    legend(ax1,p1,'Extracted dispersion curve','Location','best')
+    box(ax1,"on")
+
+    p1=plot(ax2,freq,A,'k-','LineWidth',1.5);hold(ax2,"on")
+    plot(ax2,f,A(fid),'r.','MarkerSize',10);
+    plot(ax2,f,A(fid),'ro','MarkerSize',10);hold(ax2,"off")
+    legend(ax2,p1,'Extracted attenuation curve','Location','best')
+    box(ax2,"on")
+
+    p1=plot(ax3,R,Y(fid,:),'k-','LineWidth',1.5);
+    hold(ax3,"on")
+    p2=plot(ax3,R,W(fid).*besselj(0,2*pi.*f./V(fid).*R).*exp(-A(fid).*R),'r--','LineWidth',1.5);
+    hold(ax3,"off")
+    legend(ax3,[p1 p2],'Observed','Predicted')
+    box(ax3,"on")
+    ax3.Title.String = ['Freq. = ', num2str(f),' Hz;  ','c = ',num2str(V(fid)),' m/s;  ','\alpha = ',num2str(A(fid)),' 1/m.'];
+    ax3.Title.FontSize=16;
+    ax3.Title.FontWeight="bold";
+    ax3.Title.FontName='Helvetica';
+end
+
+function saveFig(fig)
+    defaultName = sprintf('ShowResults_%s.fig', datestr(datetime("now"), 'yyyymmdd_HHMMSS')); %#ok<DATST>
+    [file, path] = uiputfile('*.fig', 'Save as FIG files', defaultName);
+    if isequal(file, 0) || isequal(path, 0)
+        return; 
+    end
+    fullPath = fullfile(path, file);
+    savefig(fig, fullPath);
+end
+
+function [value,inx,iny]=min2(A)
+    % 寻找矩阵的最小值(value)及其所在行(iny)列(inx)
+    [temp,in1]=min(A,[],1);
+    [temp,in2]=min(temp);
+
+    value=temp;
+    inx=in2;
+    iny=in1(in2);
+end
+
+
 
 function HelpFunction(WhichFunctionName,Language)
 if strcmp(Language,"Zh")
@@ -805,13 +1020,35 @@ if strcmp(Language,"Zh")
             disp("      CC=mCCFJ.inversion(FJ, RR, Mask, options);")
             disp("必要输入参数: ")
             disp("      FJ      mCCFJ.transform程序的输出。注意，对于背景噪声数据，在输入的FJ，其FJ.dsp要取实部")
-            disp("      RR      距离，一般为互相关对的距离，即CC.ccr(:,1)，单位m")
+            disp("      CR      距离，一般为互相关对的距离，即CC.ccr(:,1)，单位m")
             disp("      Mask    执行反变换的掩码窗，是一个与FJ.dsp相同维度大小的矩阵，全部元素由0和1组成，默认为[]，即运行程序时通过人手动画框得到")
             disp("可选输入参数（options）: ")
             disp("      Plt     频散谱绘图的类型，'real','imag'或'abs'，默认为'abs'")
             disp("      GPU     计算过程中是否调用GPU加快计算，'No'为不使用，'Yes'为使用，默认为'Yes'")
             disp("      Num     计算过程中使用线程的数量，默认为0，表示使用常规的串行计算，Num>=1时，使用parfor开启并行计算。注意，并行计算并不一定能加快计算速度。")
             disp("输出参数（CC，是一个结构体）")
+            disp("帮助文档 - 结尾")
+
+        case "attenuation"
+            disp("帮助文档 - mCCFJ.attenuation: 面波衰减曲线提取程序")
+            disp(" ")
+            disp("用法：")
+            disp("      CC=mCCFJ.attenuation(CC, f_bound, r_bound, a_range, w_range);")
+            disp("      CC=mCCFJ.attenuation(CC, f_bound, r_bound, a_range, w_range, options);")
+            disp("必要输入参数: ")
+            disp("      CC      mCCFJ.correlate或mCCFJ.inversion程序的输出")
+            disp("      f_bound 要分析的频率范围的上下限，大小(1,2)，示例，f_bound=[0, 80]; 单位Hz")
+            disp("      r_bound 要分析的距离范围的上下限，大小(1,2)，示例，r_bound=[5, 50]; 单位m")
+            disp("      a_range 衰减系数的网格搜索序列，大小(1,:)，示例，a_range=linspace(1e-5,1e-3,1001); 单位1/m")
+            disp("      w_range 能量强度因子的网格搜索序列，大小(1,2)，示例，w_bound=linspace(0,1,1001).")
+            disp("可选输入参数（options）: ")
+            disp("      kind        互相干随距离的振荡类型，'J0'或'J1'，默认为'J0'，表示符合瑞雷波的振荡特征")
+            disp("      envelope    是否对互相干取包络，'Yes'或'No'，默认为'No'")
+            disp("      ShowResults 衰减曲线提取完成后，是否执行相干曲线拟合检查程序，'Yes'或'No'，默认为'No'")
+            disp("输出参数：")
+            disp("      A        衰减曲线，列向量")
+            disp("      W        能量强度因子曲线，列向量")
+            disp("      freq     A和W的频率序列。 ")
             disp("帮助文档 - 结尾")
 
         case "filtering"
@@ -941,13 +1178,35 @@ else
         disp("      CC=mCCFJ.inversion(FJ, RR, Mask, options);")
         disp("Required Input Parameters: ")
         disp("      FJ     Output of 'mCCFJ.transform' program. Note: For ambient noise data, the real part of FJ.dsp should be taken as input")
-        disp("      RR     Distances, generally the inter-station distances from cross-correlation pairs (i.e., CC.ccr(:,1)), in meters")
+        disp("      CR     Distances, generally the inter-station distances from cross-correlation pairs (i.e., CC.ccr(:,1)), in meters")
         disp("      Mask   Mask window for performing the inverse transformation. It is a matrix of the same dimensions as FJ.dsp, with all elements consisting of 0 and 1. Default is [], meaning it will be manually drawn during program execution")
         disp("Optional Input Parameters (options): ")
         disp("      Plt    Type of dispersion spectrum plot: 'real', 'imag', or 'abs'. Default is 'abs'")
         disp("      GPU    Whether to use GPU acceleration during computation: 'No' for disable, 'Yes' for enable. Default is 'Yes'")
         disp("      Num     The number of threads used in the computation process. The default is 0, indicating conventional serial computation. When Num >= 1, parallel computation is enabled using 'parfor'. Note that 'parfor' does not necessarily speed up the computation.")
         disp("Output Parameter (CC, a structure)")
+        disp("Help Document - End")
+
+    case "attenuation"
+        disp("Help document - mCCFJ.attenuation: Surface-wave attenuation curve extraction program")
+        disp(" ")
+        disp("Usage:")
+        disp("      CC=mCCFJ.attenuation(CC, f_bound, r_bound, a_range, w_range);")
+        disp("      CC=mCCFJ.attenuation(CC, f_bound, r_bound, a_range, w_range, options);")
+        disp("Required Input Parameters: ")
+        disp("      CC      Output of 'mCCFJ.correlate' or 'mCCFJ.inversion' program")
+        disp("      f_bound Lower and upper limits of the frequency range to analyze, size (1,2), e.g., f_bound=[0, 80]; unit Hz")
+        disp("      r_bound Lower and upper limits of the distance range to analyze, size (1,2), e.g., r_bound=[5, 50]; unit m")
+        disp("      a_range Grid search sequence for attenuation coefficient, size (1,:), e.g., a_range=linspace(1e-5,1e-3,1001); unit 1/m")
+        disp("      w_range Grid search sequence for energy intensity factor, size (1,2), e.g., w_bound=linspace(0,1,1001).")
+        disp("Optional Input Parameters (options): ")
+        disp("      kind        Oscillation type of the coherency with distance, 'J0' or 'J1', default 'J0', representing Rayleigh-wave oscillation characteristics.")
+        disp("      envelope    Whether to take the envelope for the coherency, 'Yes' or 'No', default 'No'")
+        disp("      ShowResults Whether to run the coherency curve fitting check after attenuation extraction, 'Yes' or 'No', default 'No'")
+        disp("Output parameters:")
+        disp("      A        Attenuation curve, column vector, unit 1/m")
+        disp("      W        Energy intensity factor curve, column vector")
+        disp("      freq     Frequency vector corresponding to A and W, unit Hz.")
         disp("Help Document - End")
 
     case "filtering"
