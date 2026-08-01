@@ -22,7 +22,7 @@ For more details, refer to the following paper, and thank you for quoting it if 
 
 
 # Highlights
-- High program integration: All functions are consolidated into a single .p file, making document management extremely convenient.  
+- High program integration: All functions are consolidated into a single .m file, making document management extremely convenient.  
 - Quick to learn and master: The program features a simple interface with detailed bilingual (Chinese and English) help documentation and demonstration code.  
 - More powerful dispersion analysis capabilities: Includes the unique wFH transform pair specific to this program package.  
 
