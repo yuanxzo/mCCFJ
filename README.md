@@ -42,7 +42,7 @@ Quickly understand its usage by typing the following command in Matlab's command
 Help Document - mCCFJ
  
 Program Version: 1.6.0
-Configuration Requirements: Matlab R2022b or later versions are recommended
+Configuration Requirements: Matlab R2023a or later versions are recommended
 Document Usage:
      methods(mCCFJ);
      mCCFJ.Help('FunctionName', 'En');
@@ -58,7 +58,7 @@ Help Document - End
 帮助文档 - mCCFJ
  
 程序版本：1.6.0
-配置要求：建议使用Matlab R2022b或更新版本
+配置要求：建议使用Matlab R2023a或更新版本
 文档用法:
           methods(mCCFJ);
           mCCFJ.Help('FunctionName', 'En');
